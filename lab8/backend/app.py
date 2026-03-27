@@ -98,6 +98,35 @@ def delete_user(user_id):
 
 #   Exercise2
 # - POST /predict_house_price
+@app.route('/predict_house_price', methods=['POST'])
+def predict_house_price():
+    try:
+        model = joblib.load(MODEL_PATH)
+        data = request.json
+
+        cats = bool(data['pets'])
+        dogs = bool(data['pets'])
+
+        sample_data = [
+            str(data['city']),
+            str(data['province']),
+            float(data['latitude']),
+            float(data['longitude']),
+            str(data['lease_term']),
+            str(data['type']),
+            float(data['beds']),
+            float(data['baths']),
+            float(data['sq_feet']),
+            str(data['furnishing']),
+            str(data['smoking']),
+            cats,
+            dogs,
+        ]
+        sample_df = pd.DataFrame([sample_data], columns=PREDICTION_COLUMNS)
+        predicted_price = model.predict(sample_df)
+        return jsonify({'predicted_price': float(predicted_price[0])}), 200 
+    except Exception as e:
+        return jsonify({"message": str(e)}), 400
 
 
 if __name__ == "__main__":
